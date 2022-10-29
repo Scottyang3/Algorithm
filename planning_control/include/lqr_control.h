@@ -11,19 +11,19 @@
 
 using Matrix = Eigen::MatrixXd;
 
-//Riccati·½³Ì·µ»ØÀàĞÍ
+//Riccatiæ–¹ç¨‹è¿”å›ç±»å‹
 typedef Eigen::Matrix<double, 1, 4> Matrix1x4;
 
 //--------------------------------------------------------------------------------------------------//
-// ¿ØÖÆÁ¿Í»±äÓÅ»¯
-// ÎÊÌâÃèÊö£ºÔÚµÀÂ·ÇúÂÊ±ä»¯´¦µÄ¿ØÖÆÁ¿´æÔÚÍ»±äÏÖÏó
-// Ô­Òò£º¹æ»®Â·¾¶µÄÇúÂÊ²»Á¬Ğø£¬Â·¾¶µã±¾ÉíÇúÂÊ¾Í´æÔÚÍ»±ä£¬Ã»ÓĞ¹ı¶ÉÇúÂÊ
-// ½â¾ö·½·¨ 1£ºÔÚÇúÂÊÍ»±ä´¦½øĞĞ²åÖµ£¬±£Ö¤Á¬½Ó´¦ÇúÂÊµÄÒ»½×µ¼ÊıÓë¶ş½×µ¼Êı¶¼Á¬Ğø£¬ÔÚÊµ¼ÊÂ·¿öÖĞ´ó¶àÊıµÄ¹«Â·Éè¼Æ¶¼ÊÇÁ¬ĞøÇúÂÊ¡£
-// ½â¾ö·½·¨ 2£ºÔö´ó LQR ¿ØÖÆÆ÷ÖĞ R µÄÖµ£¬¼´Ôö´ó£õµÄ³Í·£È¨ÖØ£¬Ê¹£õ±ä»¯¼õ»º¡£
+// æ§åˆ¶é‡çªå˜ä¼˜åŒ–
+// é—®é¢˜æè¿°ï¼šåœ¨é“è·¯æ›²ç‡å˜åŒ–å¤„çš„æ§åˆ¶é‡å­˜åœ¨çªå˜ç°è±¡
+// åŸå› ï¼šè§„åˆ’è·¯å¾„çš„æ›²ç‡ä¸è¿ç»­ï¼Œè·¯å¾„ç‚¹æœ¬èº«æ›²ç‡å°±å­˜åœ¨çªå˜ï¼Œæ²¡æœ‰è¿‡æ¸¡æ›²ç‡
+// è§£å†³æ–¹æ³• 1ï¼šåœ¨æ›²ç‡çªå˜å¤„è¿›è¡Œæ’å€¼ï¼Œä¿è¯è¿æ¥å¤„æ›²ç‡çš„ä¸€é˜¶å¯¼æ•°ä¸äºŒé˜¶å¯¼æ•°éƒ½è¿ç»­ï¼Œåœ¨å®é™…è·¯å†µä¸­å¤§å¤šæ•°çš„å…¬è·¯è®¾è®¡éƒ½æ˜¯è¿ç»­æ›²ç‡ã€‚
+// è§£å†³æ–¹æ³• 2ï¼šå¢å¤§ LQR æ§åˆ¶å™¨ä¸­ R çš„å€¼ï¼Œå³å¢å¤§ï½•çš„æƒ©ç½šæƒé‡ï¼Œä½¿ï½•å˜åŒ–å‡ç¼“ã€‚
 //--------------------------------------------------------------------------------------------------//
-// ¿ØÖÆÁ¿¶¶¶¯ÓÅ»¯:¿ØÖÆÁ¿²¨ĞÎÊÜµ½±¥ºÍÔ¼Êø£¬Ç°ÂÖ×ª½Ç±ä»¯·¶Î§Îª ¡À1 rad
-// ÎÊÌâÃèÊö£º¿ØÖÆÁ¿¶¶¶¯¹ı´ó£¬¼´·½ÏòÅÌ²»Æ½ÎÈ
-// Ô­Òò£ºÔÚ err ºÍ ÇúÂÊ¼ÆËãÄ£¿éÖĞ£¬Í¶Ó°µãµÄº½Ïò½ÇÓÃÆ¥ÅäµãµÄº½Ïò½Ç½üËÆ´úÌæ£¬µ¼ÖÂ¼ÆËã½á¹û·´¸´²»¶¨£¬ĞŞÕıºóÖØĞÂÖ´ĞĞ¡£
+// æ§åˆ¶é‡æŠ–åŠ¨ä¼˜åŒ–:æ§åˆ¶é‡æ³¢å½¢å—åˆ°é¥±å’Œçº¦æŸï¼Œå‰è½®è½¬è§’å˜åŒ–èŒƒå›´ä¸º Â±1 rad
+// é—®é¢˜æè¿°ï¼šæ§åˆ¶é‡æŠ–åŠ¨è¿‡å¤§ï¼Œå³æ–¹å‘ç›˜ä¸å¹³ç¨³
+// åŸå› ï¼šåœ¨ err å’Œ æ›²ç‡è®¡ç®—æ¨¡å—ä¸­ï¼ŒæŠ•å½±ç‚¹çš„èˆªå‘è§’ç”¨åŒ¹é…ç‚¹çš„èˆªå‘è§’è¿‘ä¼¼ä»£æ›¿ï¼Œå¯¼è‡´è®¡ç®—ç»“æœåå¤ä¸å®šï¼Œä¿®æ­£åé‡æ–°æ‰§è¡Œã€‚
 //--------------------------------------------------------------------------------------------------//
 
 class lqr_control
@@ -34,13 +34,13 @@ private:
     Eigen::MatrixXd matrix_Q;
     Eigen::MatrixXd matrix_R;
     Eigen::MatrixXd matrix_err_state;
-    //R¾ØÕóµÄÊıÖµ£¬Ô½´ó¶Ô¿ØÖÆuµÄ³Í·£Ô½´ó£¬±ä»¯Ô½»ºÂı
+    //RçŸ©é˜µçš„æ•°å€¼ï¼Œè¶Šå¤§å¯¹æ§åˆ¶uçš„æƒ©ç½šè¶Šå¤§ï¼Œå˜åŒ–è¶Šç¼“æ…¢
     double R = 30;
     // corner stiffness; front
     double cf = -175016;
     // corner stiffness; rear
     double cr = -130634;
-    //mass of the vehicle,×ÜÖÊÁ¿
+    //mass of the vehicle,æ€»è´¨é‡
     double mass = 2020;
     // wheelbase    
     double wheelbase = 2.947;
@@ -51,33 +51,33 @@ private:
     // moment of inertia
     double iz = 4095.0;
 
-    //Riccati,Îó²îÊÕÁ²ãĞÖµ
+    //Riccati,è¯¯å·®æ”¶æ•›é˜ˆå€¼
     double err_tolerance=0.01;
-    //µü´úÖÕÖ¹´ÎÊı
+    //è¿­ä»£ç»ˆæ­¢æ¬¡æ•°
     uint max_num_iteration=1500;
-    //Ã¿¸ô0.01s½øĞĞÒ»´Î¿ØÖÆ
+    //æ¯éš”0.01sè¿›è¡Œä¸€æ¬¡æ§åˆ¶
     double ts=0.01; 
 
 public:
     void UpdataState(const location_info &VehicleState);
     Matrix1x4 Cal_Riccati(const Matrix &A, const Matrix &B, const Matrix &Q,
                          const Matrix &R, const double err_tolerance,
-                         const uint max_num_iteration);  //¼ÆËãK¾ØÕó
+                         const uint max_num_iteration);  //è®¡ç®—KçŸ©é˜µ
     LateralControlError Cal_Error(double x, double y, double yaw, double vx, double vy, double dyaw, std::vector<planning_trajectory> &planning_path);
     int QueryNearestPointByPosition(double x, double y, std::vector<planning_trajectory> &planning_path);
     double ComputeControlCommand(const location_info &VehicleState, std::vector<planning_trajectory> &planning_path);
 };
 
-// ½«½Ç¶È(»¡¶ÈÖÆ)¹é»¯µ½[-M_PI, M_PI]Ö®¼ä
+// å°†è§’åº¦(å¼§åº¦åˆ¶)å½’åŒ–åˆ°[-M_PI, M_PI]ä¹‹é—´
 double NormalizeAngle(const double angle) {
-    double a = std::fmod(angle + M_PI, 2.0 * M_PI); //²éÕÒ³ı·¨µÄÓàÊı
+    double a = std::fmod(angle + M_PI, 2.0 * M_PI); //æŸ¥æ‰¾é™¤æ³•çš„ä½™æ•°
     if (a < 0.0) {
         a += (2.0 * M_PI);
     }
     return a - M_PI;
 }
 
-// ½«½Ç¶È×ª»»Îª»¡¶ÈÖÆ
+// å°†è§’åº¦è½¬æ¢ä¸ºå¼§åº¦åˆ¶
 double atan2_to_PI(const double atan2) { 
     return atan2 * M_PI / 180; 
 }
@@ -93,7 +93,7 @@ void lqr_control::UpdataState(const location_info &VehicleState){
     double v = VehicleState.host_speed;
     if (v<0.01)
     {
-        v = 0.01;//·ÀÖ¹ËÙ¶ÈµÈÓÚ0Ê±£¬0×ö·ÖÄ¸
+        v = 0.01;//é˜²æ­¢é€Ÿåº¦ç­‰äº0æ—¶ï¼Œ0åšåˆ†æ¯
     }
     matrix_A = Matrix::Zero(4, 4);
     matrix_A(0,1) = 1.0;
@@ -112,29 +112,29 @@ void lqr_control::UpdataState(const location_info &VehicleState){
     //      0.0;
     //      l_f * c_f / i_z;]
     //-----------------------------------------------------------------------------------------------------------------------//
-    // ³õÊ¼»¯B¾ØÕó
+    // åˆå§‹åŒ–BçŸ©é˜µ
     matrix_B = Matrix::Zero(4,1);
     matrix_B(1, 0) = -cf / mass;
     matrix_B(3, 0) = -lf * cf / iz;
     matrix_B=matrix_B*ts;
 
-    // ³õÊ¼»¯Q¾ØÕó
+    // åˆå§‹åŒ–QçŸ©é˜µ
     matrix_Q = Matrix::Zero(4, 4);
     matrix_Q(0, 0) = 5;   // lateral_error
     matrix_Q(1, 1) = 1;    // lateral_error_rate
     matrix_Q(2, 2) = 4;    // heading_error
     matrix_Q(3, 3) = 1;    // heading__error_rate
 
-    //// ³õÊ¼»¯R¾ØÕó
+    //// åˆå§‹åŒ–RçŸ©é˜µ
     matrix_R = Matrix::Identity(1, 1);
-    matrix_R(0, 0) = R; //RÔ½´ó¶ÔÊäÈëu³Í·£È¨ÖØÔ½´ó£¬Ô½´óÔòu±ä»¯Ô½»ºÂı
+    matrix_R(0, 0) = R; //Rè¶Šå¤§å¯¹è¾“å…¥uæƒ©ç½šæƒé‡è¶Šå¤§ï¼Œè¶Šå¤§åˆ™uå˜åŒ–è¶Šç¼“æ…¢
 }
 
 Matrix1x4 lqr_control::Cal_Riccati(const Matrix &A, const Matrix &B, const Matrix &Q,
                                    const Matrix &R, const double err_tolerance,
                                    const uint max_num_iteration){
     Matrix1x4 K;
-    // ·ÀÖ¹¾ØÕóµÄÎ¬Êı³ö´íµ¼ÖÂºóĞøµÄÔËËãÊ§°Ü
+    // é˜²æ­¢çŸ©é˜µçš„ç»´æ•°å‡ºé”™å¯¼è‡´åç»­çš„è¿ç®—å¤±è´¥
     if (A.rows() != A.cols() || B.rows() != A.rows() || Q.rows() != Q.cols() || Q.rows() != A.rows() || R.rows() != R.cols() || R.rows() != B.cols()) {
         std::cout << "LQR solver: one or more matrices have incompatible dimensions." << std::endl;
         return K;
@@ -148,22 +148,32 @@ Matrix1x4 lqr_control::Cal_Riccati(const Matrix &A, const Matrix &B, const Matri
     // std::cout<<"R \n"<<R<<std::endl;
     // std::cout<<"P \n"<<P<<std::endl;
     // std::cout<<"Q \n"<<Q<<std::endl;
+    int num_Riccati = 0;
     for (size_t i = 0; i < max_num_iteration; i++) {
-        P_next = Q + A.transpose() * P * A - A.transpose() * P * B * (R + B.transpose() * P * B).inverse() * B.transpose() * P * A;//µü´ú¹«Ê½
+        P_next = Q + A.transpose() * P * A - A.transpose() * P * B * (R + B.transpose() * P * B).inverse() * B.transpose() * P * A;//è¿­ä»£å…¬å¼
         Riccati_err = std::fabs((P_next - P).maxCoeff());
         //std::cout<<"Riccati_err=  "<<Riccati_err<<std::endl;
         P = P_next;
+        num_Riccati += 1;
         if (Riccati_err < err_tolerance) {
             break;
         }
     }
+    if (num_Riccati>=max_num_iteration)
+    {
+        std::cout<<"LQR solver cannot converge to a solution. (Riccatiä¸æ”¶æ•›) "<<std::endl;
+    }
+    // else{
+    //     std::cout<<"max consecutive result diff. (æœ€å¤§è¿ç»­ç»“æœå·®å¼‚):  "<< num_Riccati <<std::endl;
+    // }
+    
     K = (R + B.transpose() * P * B).inverse() * B.transpose() * P * A;
     return K;
 }
 
 int lqr_control::QueryNearestPointByPosition(double x, double y, std::vector<planning_trajectory> &planning_path){
         int path_length;
-    path_length = planning_path.size(); //¹æ»®¹ì¼£µÄ³¤¶È
+    path_length = planning_path.size(); //è§„åˆ’è½¨è¿¹çš„é•¿åº¦
     double d_min = 1e6;
     int min_index = 0;
     for (size_t i = 0; i < path_length; i++)
@@ -192,21 +202,21 @@ LateralControlError lqr_control::Cal_Error(double x, double y, double yaw, doubl
     d_err[0] = x - planning_path[min_index].trajectory_x;
     d_err[1] = y - planning_path[min_index].trajectory_y;
     LateralControlError lqr_error;
-    double lateral_error= nor[0]*d_err[0] + nor[1]*d_err[1];    //ºáÏòÎó²î
+    double lateral_error= nor[0]*d_err[0] + nor[1]*d_err[1];    //æ¨ªå‘è¯¯å·®
     lqr_error.lateral_error = lateral_error;
 
-    double lon_error = nor[0]*d_err[0] + nor[1]*d_err[1];    //×İÏòÎó²î
+    double lon_error = nor[0]*d_err[0] + nor[1]*d_err[1];    //çºµå‘è¯¯å·®
     double projection_point_thetar = planning_path[min_index].trajectory_heading + planning_path[min_index].trajectory_kappa * lon_error;
 
-    double lateral_error_rate = vy * cos(yaw - projection_point_thetar) + vx * sin(yaw - projection_point_thetar);   //ºáÏòÎó²î±ä»¯ÂÊ
+    double lateral_error_rate = vy * cos(yaw - projection_point_thetar) + vx * sin(yaw - projection_point_thetar);   //æ¨ªå‘è¯¯å·®å˜åŒ–ç‡
     lqr_error.lateral_error_rate = lateral_error_rate;
 
-    double heading_error = sin(yaw - projection_point_thetar);   //º½ĞĞÎó²î
+    double heading_error = sin(yaw - projection_point_thetar);   //èˆªè¡Œè¯¯å·®
     lqr_error.heading_error = heading_error;
 
     double ss_dot = vx*cos(yaw-projection_point_thetar)-vy*sin(yaw-projection_point_thetar);
     double s_dot = ss_dot/(1 - planning_path[min_index].trajectory_kappa * lateral_error);
-    double heading_error_rate = dyaw - planning_path[min_index].trajectory_kappa * s_dot; ////×İÏòÎó²î±ä»¯ÂÊ
+    double heading_error_rate = dyaw - planning_path[min_index].trajectory_kappa * s_dot; ////çºµå‘è¯¯å·®å˜åŒ–ç‡
     lqr_error.heading_error_rate = heading_error_rate;
 
     matrix_err_state = Matrix::Zero(4, 1);
@@ -222,7 +232,7 @@ double lqr_control::ComputeControlCommand(const location_info &VehicleState, std
     UpdataState(VehicleState);
     Matrix1x4 K=Cal_Riccati(matrix_A, matrix_B, matrix_Q, matrix_R , err_tolerance, max_num_iteration);
     //---------------------------------------------------------//
-    //  Ô¤²âÄ£¿é
+    //  é¢„æµ‹æ¨¡å—
     //  pre_x = x + vx * ts * cos(phi) - vy * ts * sin(phi);
     //  pre_y = y + vy * ts * cos(phi) + vx * ts * sin(phi);
     //  pre_heading = phi + phi_dot * ts;
@@ -237,38 +247,38 @@ double lqr_control::ComputeControlCommand(const location_info &VehicleState, std
     double pre_vx = VehicleState.host_vx;
     double pre_vy = VehicleState.host_vy;
     double pre_dheading = VehicleState.host_yawrate;
-    if(pre_vx < 0.1){pre_vx = pre_speed;}//Èç¹û´«ÈëµÄvx=0ËµÃ÷Ã»ÓĞ½ÓÊÜµ½£¬ÓÃv½üËÆ´úÌæ
+    if(pre_vx < 0.1){pre_vx = pre_speed;}//å¦‚æœä¼ å…¥çš„vx=0è¯´æ˜æ²¡æœ‰æ¥å—åˆ°ï¼Œç”¨vè¿‘ä¼¼ä»£æ›¿
     //---------------------------------------------------------//
-    //¼ÆËãÎó²îÄ£¿é
+    //è®¡ç®—è¯¯å·®æ¨¡å—
     LateralControlError control_err;
     control_err = Cal_Error(pre_x, pre_y, pre_heading, pre_vx, pre_vy, pre_dheading, planning_path);
 
     //------------------------------------------------------------------------------------//
-    //Ç°À¡¿ØÖÆÄ£¿é
+    //å‰é¦ˆæ§åˆ¶æ¨¡å—
     double steer_angle_feedforwardterm;
     int min_index = QueryNearestPointByPosition(pre_x, pre_y,planning_path);
     double ref_curvature = planning_path[min_index].trajectory_kappa;
-    // Ç°À¡¿ØÖÆ·½·¨Ò»:
+    // å‰é¦ˆæ§åˆ¶æ–¹æ³•ä¸€:
     steer_angle_feedforwardterm = atan(ref_curvature * (lf + lr));
-    // Ç°À¡¿ØÖÆ·½·¨¶ş:
+    // å‰é¦ˆæ§åˆ¶æ–¹æ³•äºŒ:
     // double v = VehicleState.host_speed;
     // const double kv = lr * mass / 2 / cf / wheelbase - lf * mass / 2 / cr / wheelbase;
     // steer_angle_feedforwardterm = (wheelbase * ref_curvature + kv * v * v * ref_curvature - K(0, 2) * 
     //                                 (lr * ref_curvature - lf * mass * v * v * ref_curvature / 2 / cr / wheelbase));
-    // Ç°À¡¿ØÖÆ·½·¨Èı:
+    // å‰é¦ˆæ§åˆ¶æ–¹æ³•ä¸‰:
     // double v = VehicleState.host_speed;
     // steer_angle_feedforwardterm = ref_curvature*(wheelbase-lr*K(0, 2)-
-    //                                    mass*v*v*(lr/cf+lf/cr*K(0, 2)-lf/cr)/wheelbase);//ÀÏÍõ
+    //                                    mass*v*v*(lr/cf+lf/cr*K(0, 2)-lf/cr)/wheelbase);//è€ç‹
     //------------------------------------------------------------------------------------//
 
     //------------------------------------------------------------------------------------//
-    //¿ØÖÆ´óĞ¡µÄ¼ÆËã
+    //æ§åˆ¶å¤§å°çš„è®¡ç®—
     double steer_angle_feedback = -(K * matrix_err_state)(0,0);
     double steer_angle = steer_angle_feedback + steer_angle_feedforwardterm;
     //------------------------------------------------------------------------------------//
 
     //------------------------------------------------------------------------------------//
-    //Êä³ö¹Û²ìÊıÖµ
+    //è¾“å‡ºè§‚å¯Ÿæ•°å€¼
     // std::cout<<"K =  "<< K <<std::endl;
     // std::cout<<"matrix_err_state=  "<<matrix_err_state.transpose()<<std::endl;
     // std::cout<<"steer_angle_feedback=  "<<steer_angle_feedback<<std::endl;
@@ -276,7 +286,7 @@ double lqr_control::ComputeControlCommand(const location_info &VehicleState, std
     // std::cout<<"----------steeer_angle=  "<<steer_angle *180 / 3.1415926<< " deg"<<std::endl;
     //------------------------------------------------------------------------------------//
 
-    // ÏŞÖÆÇ°ÂÖ×î´ó×ª½Ç£¬ÕâÀï¶¨ÒåÇ°ÂÖ×î´ó×ª½ÇÎ»ÓÚ [-20¶È¡«20¶È].
+    // é™åˆ¶å‰è½®æœ€å¤§è½¬è§’ï¼Œè¿™é‡Œå®šä¹‰å‰è½®æœ€å¤§è½¬è§’ä½äº [-20åº¦ï½20åº¦].
     if (steer_angle >= atan2_to_PI(20)) {
         steer_angle = atan2_to_PI(20);
     } else if (steer_angle <= -atan2_to_PI(20)) {
@@ -284,4 +294,3 @@ double lqr_control::ComputeControlCommand(const location_info &VehicleState, std
     }
     return steer_angle;
 }
-
